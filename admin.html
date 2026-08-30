@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RongTana Admin</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    body{padding-bottom:60px}.admin{padding-top:40px}.admin-grid{display:grid;grid-template-columns:340px 1fr;gap:28px}
+    .panel{background:white;padding:22px;border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.07)}
+    .panel h2{font-size:28px}.admin form{display:grid;gap:10px}.admin table{width:100%;border-collapse:collapse}
+    .admin th,.admin td{text-align:left;padding:10px;border-bottom:1px solid #eee;vertical-align:top}
+    .admin .danger{border:0;background:#fee;color:#a22;padding:6px 9px;border-radius:7px;cursor:pointer}
+    .orders{margin-top:28px}.status{padding:5px 8px;border-radius:8px;border:1px solid #ddd}
+    @media(max-width:800px){.admin-grid{grid-template-columns:1fr}.admin table{font-size:13px}}
+  </style>
+</head>
+<body>
+  <header class="topbar"><div class="container nav"><a class="brand" href="/"><span>R</span>RongTana Admin</a><a href="/">← Store</a></div></header>
+  <main class="container admin">
+    <div class="admin-grid">
+      <section class="panel">
+        <h2>পণ্য যোগ করুন</h2>
+        <form id="productForm">
+          <input name="name" placeholder="পণ্যের নাম" required>
+          <select name="category" required><option>Bridal</option><option>Stone</option><option>Glass</option><option>Premium</option></select>
+          <input name="price" type="number" min="0" placeholder="দাম" required>
+          <input name="stock" type="number" min="0" placeholder="স্টক" required>
+          <input name="image" placeholder="Image URL">
+          <textarea name="description" placeholder="বর্ণনা"></textarea>
+          <button class="primary" type="submit">Add Product</button>
+        </form>
+      </section>
+      <section class="panel">
+        <h2>Products</h2>
+        <div style="overflow:auto">
+          <table><thead><tr><th>নাম</th><th>দাম</th><th>স্টক</th><th></th></tr></thead><tbody id="productRows"></tbody></table>
+        </div>
+      </section>
+    </div>
+
+    <section class="panel orders">
+      <h2>Orders</h2>
+      <div style="overflow:auto">
+        <table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table>
+      </div>
+    </section>
+  </main>
+<script>
+const money = n => `৳ ${Number(n).toLocaleString("en-BD")}`;
+
+async function loadProducts(){
+  const data = await fetch("/api/products").then(r=>r.json());
+  document.querySelector("#productRows").innerHTML = data.map(p=>`
+    <tr><td>${p.name}<br><small>${p.category}</small></td><td>${money(p.price)}</td><td>${p.stock}</td>
+    <td><button class="danger" onclick="removeProduct(${p.id})">Delete</button></td></tr>
+  `).join("");
+}
+
+async function removeProduct(id){
+  if(!confirm("Delete this product?")) return;
+  await fetch(`/api/admin/products/${id}`, {method:"DELETE"});
+  loadProducts();
+}
+
+async function loadOrders(){
+  const orders = await fetch("/api/admin/orders").then(r=>r.json());
+  document.querySelector("#orderRows").innerHTML = orders.length ? orders.map(o=>`
+    <tr>
+      <td>#${o.id}<br><small>${new Date(o.createdAt).toLocaleString()}</small></td>
+      <td><b>${o.customer.name}</b><br>${o.customer.phone}<br><small>${o.customer.address}</small></td>
+      <td>${o.items.map(i=>`${i.name} × ${i.qty}`).join("<br>")}</td>
+      <td>${money(o.total)}</td>
+      <td>
+        <select class="status" onchange="setStatus(${o.id}, this.value)">
+          ${["Pending","Confirmed","Shipped","Delivered","Cancelled"].map(s=>`<option ${s===o.status?"selected":""}>${s}</option>`).join("")}
+        </select>
+      </td>
+    </tr>`).join("") : `<tr><td colspan="5">এখনও কোনো অর্ডার নেই।</td></tr>`;
+}
+
+async function setStatus(id, status){
+  await fetch(`/api/admin/orders/${id}/status`, {
+    method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({status})
+  });
+}
+
+document.querySelector("#productForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const f = new FormData(e.currentTarget);
+  const body = Object.fromEntries(f.entries());
+  const res = await fetch("/api/admin/products", {
+    method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
+  });
+  if(res.ok){ e.currentTarget.reset(); loadProducts(); }
+});
+
+loadProducts(); loadOrders();
+</script>
+</body>
+</html>
