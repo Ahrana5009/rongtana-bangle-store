@@ -12,7 +12,23 @@ body{background:#f4fbf7}.admin{padding:24px 0 50px}.grid{display:grid;grid-templ
 <textarea name="description" placeholder="বর্ণনা"></textarea><div class="actions"><button class="btn primary" id="save">পণ্য যোগ করুন</button><button class="btn" id="cancel" type="button" style="display:none">Cancel</button></div><div id="msg" class="muted"></div></form>
 <p class="muted">ছবি সর্বোচ্চ 5MB। মোবাইল থেকেও Gallery/Camera থেকে ছবি বাছাই করা যাবে।</p></section>
 <section class="panel"><h2>পণ্যসমূহ</h2><div id="products" class="products"></div></section></div>
-<section class="panel orders"><h2>Orders</h2><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="orders"></tbody></table></section></main>
+<section class="panel orders"><h2>Orders</h2><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead><tbody id="orders"></tbody></table></section><section class="panel settings-panel" style="margin-top:20px"><h2>🎨 Website Settings</h2><p class="muted">এখান থেকে কোড না খুলেই সাইটের রং, নাম ও Hero section পরিবর্তন করুন।</p>
+<form id="settingsForm" class="form">
+<div class="two"><label>Site Name<input name="siteName" value="RongTana"></label><label>Hero Eyebrow<input name="heroEyebrow"></label></div>
+<label>Hero Title <small class="muted">দুই লাইনের জন্য | ব্যবহার করুন</small><input name="heroTitle"></label>
+<label>Hero Subtitle<textarea name="heroSubtitle"></textarea></label>
+<div class="two">
+<label>Primary Color<input name="primary" type="color"></label>
+<label>Secondary Color<input name="secondary" type="color"></label>
+</div>
+<div class="two">
+<label>Carrot Accent<input name="accent" type="color"></label>
+<label>Pumpkin Highlight<input name="highlight" type="color"></label>
+</div>
+<div class="two"><label>Phone<input name="phone" placeholder="01XXXXXXXXX"></label><label>WhatsApp<input name="whatsapp" placeholder="WhatsApp link"></label></div>
+<label>Facebook<input name="facebook" placeholder="Facebook page link"></label>
+<button class="btn primary" type="submit">💾 Settings Save করুন</button><div id="settingsMsg" class="muted"></div>
+</form></section></main>
 <script>
 const $=s=>document.querySelector(s), money=n=>'৳ '+Number(n).toLocaleString('en-BD');
 const form=$('#form'), preview=$('#preview'), msg=$('#msg');
@@ -26,5 +42,9 @@ async function del(id){if(!confirm('এই পণ্যটি Delete করব�
 form.onsubmit=async e=>{e.preventDefault();const id=form.id.value,body={name:form.name.value.trim(),category:form.category.value,price:Number(form.price.value),stock:Number(form.stock.value),image:form.image.value,description:form.description.value.trim()};const r=await fetch(id?'/api/admin/products/'+id:'/api/admin/products',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json().catch(()=>({}));if(!r.ok){msg.textContent=d.message||'Save করা যায়নি';msg.className='bad';return}reset();load()};
 async function orders(){const d=await fetch('/api/admin/orders').then(r=>r.json());$('#orders').innerHTML=d.length?d.map(o=>'<tr><td>#'+o.id+'<br><small>'+new Date(o.createdAt).toLocaleString()+'</small></td><td><b>'+esc(o.customer.name)+'</b><br>'+esc(o.customer.phone)+'<br>'+esc(o.customer.address)+'</td><td>'+o.items.map(i=>esc(i.name)+' × '+i.qty).join('<br>')+'</td><td>'+money(o.total)+'</td><td><select class="status" onchange="status('+o.id+',this.value)">'+['Pending','Confirmed','Shipped','Delivered','Cancelled'].map(s=>'<option '+(s===o.status?'selected':'')+'>'+s+'</option>').join('')+'</select></td></tr>').join(''):'<tr><td colspan="5">এখনও কোনো অর্ডার নেই।</td></tr>'}
 async function status(id,v){await fetch('/api/admin/orders/'+id+'/status',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:v})})}
+
+async function loadSettings(){const r=await fetch('/api/settings');const s=await r.json();const f=document.querySelector('#settingsForm');for(const k of Object.keys(s)){if(f.elements[k])f.elements[k].value=s[k]||''}if(f.elements.primary)f.elements.primary.value=s.primary;if(f.elements.secondary)f.elements.secondary.value=s.secondary;if(f.elements.accent)f.elements.accent.value=s.accent;if(f.elements.highlight)f.elements.highlight.value=s.highlight}
+document.querySelector('#settingsForm').onsubmit=async e=>{e.preventDefault();const f=e.currentTarget;const body=Object.fromEntries(new FormData(f).entries());const r=await fetch('/api/admin/settings',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();const m=document.querySelector('#settingsMsg');m.textContent=r.ok?'✅ Settings saved successfully. Storefront-এ দেখতে Store খুলুন।':(d.message||'Save করা যায়নি');m.className=r.ok?'ok':'bad'};
+loadSettings();
 load();orders();
 </script></body></html>
