@@ -9,7 +9,7 @@ const DATA_DIR = path.join(__dirname, "data");
 const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 function readJson(file, fallback = []) {
