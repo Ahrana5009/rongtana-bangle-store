@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, "data");
 const PRODUCTS_FILE = path.join(DATA_DIR, "products.json");
 const ORDERS_FILE = path.join(DATA_DIR, "orders.json");
+const SETTINGS_FILE = path.join(DATA_DIR, "settings.json");
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -23,6 +24,34 @@ function readJson(file, fallback = []) {
 function writeJson(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
 }
+
+const DEFAULT_SETTINGS = {
+  siteName: "RongTana",
+  primary: "#27AE60",
+  secondary: "#2ECC71",
+  accent: "#E67E22",
+  highlight: "#D35400",
+  heroEyebrow: "নতুন কালেকশন • ২০২৬",
+  heroTitle: "তোমার সাজে|রঙের ছোঁয়া",
+  heroSubtitle: "স্টাইলিশ, ব্রাইডাল ও দৈনন্দিন ব্যবহারের চুড়ি—এক জায়গায়। সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।",
+  phone: "",
+  facebook: "",
+  whatsapp: ""
+};
+
+app.get("/api/settings", (req, res) => {
+  res.json({ ...DEFAULT_SETTINGS, ...readJson(SETTINGS_FILE, {}) });
+});
+
+app.put("/api/admin/settings", (req, res) => {
+  const current = { ...DEFAULT_SETTINGS, ...readJson(SETTINGS_FILE, {}) };
+  const allowed = Object.keys(DEFAULT_SETTINGS);
+  for (const key of allowed) {
+    if (req.body[key] !== undefined) current[key] = String(req.body[key]).trim();
+  }
+  writeJson(SETTINGS_FILE, current);
+  res.json(current);
+});
 
 app.get("/api/products", (req, res) => {
   let products = readJson(PRODUCTS_FILE);
