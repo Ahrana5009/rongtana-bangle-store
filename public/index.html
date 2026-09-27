@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RongTana — চুড়ির অনলাইন শপ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="#"><span>R</span>RongTana</a>
+      <nav>
+        <a href="#shop">Shop</a>
+        <a href="#why">কেন RongTana</a>
+        <button class="cart-btn" id="cartButton">🛒 Cart <b id="cartCount">0</b></button>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">নতুন কালেকশন • ২০২৬</span>
+          <h1>তোমার সাজে<br><em>রঙের ছোঁয়া</em></h1>
+          <p>স্টাইলিশ, ব্রাইডাল ও দৈনন্দিন ব্যবহারের চুড়ি—এক জায়গায়। সারা বাংলাদেশে ক্যাশ অন ডেলিভারি।</p>
+          <a class="primary" href="#shop">কালেকশন দেখুন</a>
+        </div>
+        <div class="hero-card">
+          <div class="hero-badge">Bestseller</div>
+          <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1000&q=85" alt="Premium jewellery"/>
+          <div class="hero-card-info">
+            <div><strong>Royal Bridal Collection</strong><span>Premium Finish</span></div>
+            <b>৳ 1,890</b>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container feature-grid">
+        <div>🚚 <span><b>সারা দেশে ডেলিভারি</b><small>দ্রুত ও নিরাপদ</small></span></div>
+        <div>💵 <span><b>Cash on Delivery</b><small>পণ্য পেয়ে পেমেন্ট</small></span></div>
+        <div>✨ <span><b>Premium Quality</b><small>বাছাইকৃত কালেকশন</small></span></div>
+      </div>
+    </section>
+
+    <section id="shop" class="shop container">
+      <div class="section-head">
+        <div><span class="eyebrow">Shop Collection</span><h2>আপনার পছন্দের চুড়ি</h2></div>
+        <div class="filters">
+          <input id="searchInput" placeholder="চুড়ি খুঁজুন..." />
+          <select id="categoryFilter">
+            <option value="">সব ক্যাটাগরি</option>
+            <option>Bridal</option><option>Stone</option><option>Glass</option><option>Premium</option>
+          </select>
+        </div>
+      </div>
+      <div id="products" class="product-grid"></div>
+    </section>
+
+    <section id="why" class="why">
+      <div class="container">
+        <span class="eyebrow">Made for celebration</span>
+        <h2>প্রতিটি মুহূর্তকে আরও সুন্দর করুন</h2>
+        <p>ঈদ, বিয়ে, গায়ে হলুদ, পার্টি অথবা প্রতিদিনের সাজ—RongTana-তে আছে বিভিন্ন বাজেট ও স্টাইলের কালেকশন।</p>
+      </div>
+    </section>
+  </main>
+
+  <aside class="drawer" id="cartDrawer">
+    <div class="drawer-head">
+      <h3>আপনার Cart</h3>
+      <button id="closeCart">✕</button>
+    </div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-total"><span>মোট</span><b id="cartTotal">৳ 0</b></div>
+    <button class="primary full" id="checkoutButton">Checkout</button>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+
+  <dialog id="checkoutDialog">
+    <form id="checkoutForm">
+      <button type="button" class="dialog-close" id="closeCheckout">✕</button>
+      <span class="eyebrow">Checkout</span>
+      <h2>অর্ডার সম্পন্ন করুন</h2>
+      <label>আপনার নাম<input name="name" required /></label>
+      <label>মোবাইল নম্বর<input name="phone" required /></label>
+      <label>ঠিকানা<textarea name="address" required></textarea></label>
+      <label>নোট (ঐচ্ছিক)<textarea name="note"></textarea></label>
+      <div class="checkout-summary">মোট: <b id="checkoutTotal">৳ 0</b></div>
+      <button class="primary full" type="submit">অর্ডার কনফার্ম করুন</button>
+      <p class="muted">Payment: Cash on Delivery</p>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast"></div>
+
+  <footer>
+    <div class="container footer-grid">
+      <div><a class="brand light" href="#"><span>R</span>RongTana</a><p>রঙ, সৌন্দর্য আর উৎসব—আপনার হাতে।</p></div>
+      <div><b>যোগাযোগ</b><p>Facebook / Messenger<br>WhatsApp<br>Bangladesh</p></div>
+    </div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
