@@ -1,3 +1,4 @@
+let settings = {};
 let products = [];
 let cart = JSON.parse(localStorage.getItem("rongtana_cart") || "[]");
 
@@ -6,6 +7,37 @@ const productsEl = $("#products");
 const cartDrawer = $("#cartDrawer");
 const overlay = $("#overlay");
 const checkoutDialog = $("#checkoutDialog");
+
+async function loadSettings() {
+  try {
+    const res = await fetch("/api/settings");
+    settings = await res.json();
+    applySettings();
+  } catch {}
+}
+
+function escText(v) {
+  return String(v).replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;" }[c]));
+}
+
+function applySettings() {
+  const root = document.documentElement;
+  if (settings.primary) root.style.setProperty("--rose", settings.primary);
+  if (settings.secondary) root.style.setProperty("--rose2", settings.secondary);
+  if (settings.accent) root.style.setProperty("--gold", settings.accent);
+  if (settings.highlight) root.style.setProperty("--pumpkin", settings.highlight);
+  document.querySelectorAll(".brand").forEach(x => x.innerHTML = "<span>R</span>" + escText(settings.siteName || "RongTana"));
+  const eyebrow = document.querySelector(".hero .eyebrow");
+  if (eyebrow) eyebrow.textContent = settings.heroEyebrow || "";
+  const title = document.querySelector(".hero h1");
+  if (title) {
+    const parts = String(settings.heroTitle || "তোমার সাজে|রঙের ছোঁয়া").split("|");
+    title.innerHTML = parts.length > 1 ? escText(parts[0]) + "<br><em>" + escText(parts.slice(1).join("|")) + "</em>" : escText(parts[0]);
+  }
+  const sub = document.querySelector(".hero p");
+  if (sub) sub.textContent = settings.heroSubtitle || "";
+  document.title = (settings.siteName || "RongTana") + " — চুড়ির অনলাইন শপ";
+}
 
 async function loadProducts() {
   const q = encodeURIComponent($("#searchInput").value.trim());
@@ -171,4 +203,5 @@ $("#checkoutForm").addEventListener("submit", async (e) => {
 });
 
 renderCart();
+loadSettings();
 loadProducts();
